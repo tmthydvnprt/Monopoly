@@ -1,0 +1,111 @@
+************* Module monopoly.Card
+I:  1, 0: Locally disabling too-few-public-methods (R0903) (locally-disabled)
+************* Module monopoly.Constants
+I: 17, 0: Locally disabling bad-whitespace (C0326) (locally-disabled)
+I: 60, 0: Locally enabling bad-whitespace (C0326) (locally-enabled)
+I: 94, 0: Locally disabling bad-whitespace (C0326) (locally-disabled)
+I:126, 0: Locally enabling bad-whitespace (C0326) (locally-enabled)
+************* Module monopoly.Game
+I: 25, 0: Locally disabling bad-whitespace (C0326) (locally-disabled)
+I: 63, 0: Locally enabling bad-whitespace (C0326) (locally-enabled)
+
+
+Report
+======
+586 statements analysed.
+
+Statistics by type
+------------------
+
++---------+-------+-----------+-----------+------------+---------+
+|type     |number |old number |difference |%documented |%badname |
++=========+=======+===========+===========+============+=========+
+|module   |7      |7          |=          |100.00      |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|class    |6      |6          |=          |100.00      |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|method   |54     |54         |=          |100.00      |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|function |0      |0          |=          |0           |0        |
++---------+-------+-----------+-----------+------------+---------+
+
+
+
+External dependencies
+---------------------
+::
+
+    monopoly 
+      \-Bank (monopoly.Game)
+      \-Card (monopoly.Game)
+      \-Constants (monopoly.Game)
+      \-Player (monopoly.Game)
+      \-Property (monopoly.Game)
+    numpy (monopoly.Game)
+
+
+
+Raw metrics
+-----------
+
++----------+-------+------+---------+-----------+
+|type      |number |%     |previous |difference |
++==========+=======+======+=========+===========+
+|code      |771    |73.64 |771      |=          |
++----------+-------+------+---------+-----------+
+|docstring |78     |7.45  |78       |=          |
++----------+-------+------+---------+-----------+
+|comment   |74     |7.07  |74       |=          |
++----------+-------+------+---------+-----------+
+|empty     |124    |11.84 |124      |=          |
++----------+-------+------+---------+-----------+
+
+
+
+Duplication
+-----------
+
++-------------------------+------+---------+-----------+
+|                         |now   |previous |difference |
++=========================+======+=========+===========+
+|nb duplicated lines      |0     |0        |=          |
++-------------------------+------+---------+-----------+
+|percent duplicated lines |0.000 |0.000    |=          |
++-------------------------+------+---------+-----------+
+
+
+
+Messages by category
+--------------------
+
++-----------+-------+---------+-----------+
+|type       |number |previous |difference |
++===========+=======+=========+===========+
+|convention |0      |0        |=          |
++-----------+-------+---------+-----------+
+|refactor   |0      |0        |=          |
++-----------+-------+---------+-----------+
+|warning    |0      |0        |=          |
++-----------+-------+---------+-----------+
+|error      |0      |0        |=          |
++-----------+-------+---------+-----------+
+
+
+
+Messages
+--------
+
++-----------------+------------+
+|message id       |occurrences |
++=================+============+
+|locally-disabled |4           |
++-----------------+------------+
+|locally-enabled  |3           |
++-----------------+------------+
+
+
+
+Global evaluation
+-----------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+
