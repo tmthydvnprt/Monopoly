@@ -12,7 +12,7 @@ I: 63, 0: Locally enabling bad-whitespace (C0326) (locally-enabled)
 
 Report
 ======
-600 statements analysed.
+586 statements analysed.
 
 Statistics by type
 ------------------
@@ -38,9 +38,10 @@ External dependencies
     monopoly 
       \-Bank (monopoly.Game)
       \-Card (monopoly.Game)
-      \-Constants (monopoly.Player)
+      \-Constants (monopoly.Game)
+      \-Player (monopoly.Game)
       \-Property (monopoly.Game)
-    numpy (monopoly.Player)
+    numpy (monopoly.Game)
 
 
 
@@ -50,13 +51,13 @@ Raw metrics
 +----------+-------+------+---------+-----------+
 |type      |number |%     |previous |difference |
 +==========+=======+======+=========+===========+
-|code      |785    |74.55 |785      |=          |
+|code      |771    |74.56 |771      |=          |
 +----------+-------+------+---------+-----------+
-|docstring |78     |7.41  |78       |=          |
+|docstring |78     |7.54  |78       |=          |
 +----------+-------+------+---------+-----------+
-|comment   |74     |7.03  |74       |=          |
+|comment   |74     |7.16  |74       |=          |
 +----------+-------+------+---------+-----------+
-|empty     |116    |11.02 |116      |=          |
+|empty     |111    |10.74 |111      |=          |
 +----------+-------+------+---------+-----------+
 
 
