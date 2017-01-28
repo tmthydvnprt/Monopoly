@@ -23,10 +23,8 @@ class Bank(object):
         card_str.append(''.center(CARD_WIDTH))
         card_str.append('Money: {}'.format(self.money).center(CARD_WIDTH))
         card_str.append('Turnover: {}'.format(self.turnover).center(CARD_WIDTH))
-
         card_str.append(''.center(CARD_WIDTH))
         card_str.append('-' * CARD_WIDTH)
-
         return '\n'.join('|{}|'.format(l) for l in card_str)
 
     def __repr__(self):

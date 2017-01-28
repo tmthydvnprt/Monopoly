@@ -49,7 +49,6 @@ class Player(object):
 
     def __str__(self):
         """String print out of Player."""
-
         card_str = ['-' * CARD_WIDTH]
         card_str.append('Player {} (Game {})'.format(self.number, self.game.number).center(CARD_WIDTH))
         card_str.append('-' * CARD_WIDTH)
@@ -67,7 +66,7 @@ class Player(object):
             card_str.append('{} {}'.format(prop.name, modifier).center(CARD_WIDTH))
         card_str.append(' Cards'.ljust(CARD_WIDTH))
         for c in self.cards:
-            card_str.append(c.name.center(CARD_WIDTH))
+            card_str.append(repr(c).center(CARD_WIDTH))
         card_str.append(''.center(CARD_WIDTH))
         card_str.append('-' * CARD_WIDTH)
         return '\n'.join('|{}|'.format(l) for l in card_str)

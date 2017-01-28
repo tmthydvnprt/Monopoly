@@ -16,14 +16,12 @@ class Card(object):
 
     def __str__(self):
         """String print out of card."""
-
         card_str = ['-' * CARD_WIDTH]
         card_str.append(''.center(CARD_WIDTH))
         card_str.append(self.deck.center(CARD_WIDTH))
         card_str.append(self.name.center(CARD_WIDTH))
         card_str.append(''.center(CARD_WIDTH))
         card_str.append('-' * CARD_WIDTH)
-
         return '\n'.join('|{}|'.format(l) for l in card_str)
 
     def __repr__(self):

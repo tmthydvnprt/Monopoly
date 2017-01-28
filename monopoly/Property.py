@@ -90,14 +90,11 @@ class Property(object):
             card_str.append(''.center(CARD_WIDTH))
             card_str.append(''.center(CARD_WIDTH))
             card_str.append(self.name.center(CARD_WIDTH))
-
         card_str.append('-' * CARD_WIDTH)
-
         if self.category in 'property':
             card_str.append('RENT ${}.'.format(self.rents[0]).center(CARD_WIDTH))
         else:
             card_str.append(''.center(CARD_WIDTH))
-
         if self.category is 'property':
             L = len(' With n Houses')
             card_str.append(' With 1 House ' + '${}. '.format(self.rents[1]).rjust(CARD_WIDTH - L))
@@ -124,23 +121,18 @@ class Property(object):
             card_str.append(''.center(CARD_WIDTH))
             card_str.append(''.center(CARD_WIDTH))
             card_str.append(''.center(CARD_WIDTH))
-
         card_str.append(''.center(CARD_WIDTH))
-
         if self.category in {'property', 'utility', 'railroad'}:
             card_str.append('Mortgage Value ${}.'.format(self.mortgage).center(CARD_WIDTH))
         else:
             card_str.append(''.center(CARD_WIDTH))
-
         if self.category is 'property':
             card_str.append('Houses Cost ${}. each'.format(self.cost).center(CARD_WIDTH))
             card_str.append('Hotels, ${}. Plus 4 Houses'.format(self.cost).center(CARD_WIDTH))
         else:
             card_str.append(''.center(CARD_WIDTH))
             card_str.append(''.center(CARD_WIDTH))
-
         card_str.append('-' * CARD_WIDTH)
-
         return '\n'.join('|{}|'.format(l) for l in card_str)
 
     def __repr__(self):
