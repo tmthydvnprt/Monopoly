@@ -178,9 +178,12 @@ class Game(object):
     @staticmethod
     def draw_card(deck=None):
         """Draw a card from the top of a deck then replace it on the bottom. Return the card."""
+
+        logging.info('pre-draw %s', len(deck))
         card = deck.pop(0)
-        if card.name is not 'Get out of Jail Free':
+        if card.name != 'Get out of Jail Free':
             deck.append(card)
+        logging.info('postdraw %s', len(deck))
         return card
 
     def draw_chance(self):

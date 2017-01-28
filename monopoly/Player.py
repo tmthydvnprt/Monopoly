@@ -236,6 +236,9 @@ class Player(object):
             logging.debug('Player %s using "Get out of Jail Free" Card.', self.number)
             self.just_visiting = True
             self.jail_double_try = 0
+            logging.critical('Player using %s card : %s', self.number, self.cards)
+            logging.critical('Game card : %s', len(self.game.chance))
+            logging.critical('Game card : %s', len(self.game.community_chest))
             card = self.cards.pop(0)
             # replace card in deck
             if card.deck == 'Chance':
@@ -246,6 +249,9 @@ class Player(object):
                 logging.debug('Player %s returned card to community chest.', self.number)
             else:
                 logging.warning('Card is not chance or community chest.')
+            logging.critical('Player %s card : %s', self.number, self.cards)
+            logging.critical('Game card : %s', len(self.game.chance))
+            logging.critical('Game card : %s', len(self.game.community_chest))
         # Either roll or pay
         elif self.money > JAIL_COST:
             # Pay or Roll decision unless, already tried doubles 3 times
@@ -444,5 +450,15 @@ class Player(object):
 
     def follow(self, card=None):
         """Follow the rules of a card."""
+
+        logging.critical('Pre-Follow: Player %s card : %s', self.number, self.cards)
+        logging.critical('Pre-Follow: Game card : %s', len(self.game.chance))
+        logging.critical('Pre-Follow: Game card : %s', len(self.game.community_chest))
+
         card.rule(self, self.game, card)
+
+        logging.critical('Follow: Player %s card : %s', self.number, self.cards)
+        logging.critical('Follow: Game card : %s', len(self.game.chance))
+        logging.critical('Follow: Game card : %s', len(self.game.community_chest))
+
         return self
