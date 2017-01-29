@@ -47,36 +47,6 @@ class Property(object):
         else:
             return 'property'
 
-    def rent(self, player=None):
-        """Determine the current rent of the property."""
-        if player is None:
-            return self.rents[0]
-        else:
-            same_color = sum([self.color == prop.color and not prop.mortgaged for prop in player.properties])
-            rent = 0
-            # Rent x times dice roll
-            if self.loc in UTILITIES:
-                roll, _, _ = player.roll_dice()
-                rent = roll * self.rents[same_color - 1]
-            # Rent times number owned
-            elif self.loc in RAILROADS:
-                rent = self.rents[same_color - 1]
-            # Rent if all owned
-            elif same_color == COLOR_COUNTS[self.color]:
-                # Rent doubled if no houses or hotels
-                if self.houses == 0 and self.hotels == 0:
-                    rent = 2.0 * self.rents[0]
-                # Rent for number of houses owned
-                elif self.houses > 0 and self.hotels == 0:
-                    rent = self.rents[self.houses]
-                # Rent for hotel
-                elif self.hotels > 0:
-                    rent = self.rents[MAX_LEVEL]
-            # Rent for a single property
-            else:
-                rent = self.rents[0]
-            return rent
-
     def __str__(self):
         """String print out of card."""
 
@@ -137,3 +107,33 @@ class Property(object):
 
     def __repr__(self):
         return self.name
+
+    def rent(self, player=None):
+        """Determine the current rent of the property."""
+        if player is None:
+            return self.rents[0]
+        else:
+            same_color = sum([self.color == prop.color and not prop.mortgaged for prop in player.properties])
+            rent = 0
+            # Rent x times dice roll
+            if self.loc in UTILITIES:
+                roll, _, _ = player.roll_dice()
+                rent = roll * self.rents[same_color - 1]
+            # Rent times number owned
+            elif self.loc in RAILROADS:
+                rent = self.rents[same_color - 1]
+            # Rent if all owned
+            elif same_color == COLOR_COUNTS[self.color]:
+                # Rent doubled if no houses or hotels
+                if self.houses == 0 and self.hotels == 0:
+                    rent = 2.0 * self.rents[0]
+                # Rent for number of houses owned
+                elif self.houses > 0 and self.hotels == 0:
+                    rent = self.rents[self.houses]
+                # Rent for hotel
+                elif self.hotels > 0:
+                    rent = self.rents[MAX_LEVEL]
+            # Rent for a single property
+            else:
+                rent = self.rents[0]
+            return rent

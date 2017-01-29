@@ -74,6 +74,26 @@ class Player(object):
     def __repr__(self):
         return 'Player {}'.format(self.number)
 
+    @staticmethod
+    def roll_dice():
+        """Roll two dice with uniform randomness.  Return dice sum and doubles boolean."""
+        dice1 = np.random.randint(1, 6)
+        dice2 = np.random.randint(1, 6)
+        return dice1 + dice2, dice1 == dice2, (dice1, dice2)
+
+    @staticmethod
+    def bid(number=0, min_bid=0):
+        """Make a bid on a property."""
+        price = PROPERTY_PRICES[number]
+        price_bid = np.random.normal(price, 0.5 * price)
+        return min(price_bid, min_bid)
+
+    @staticmethod
+    def jail_pay_or_roll():
+        """Pay or roll to get out of jail."""
+        r = np.random.rand()
+        return 0 if r > 0.5 else 1
+
     def owns(self, number=0):
         """Check if player owns a property position."""
         return number in [p.loc for p in self.properties]
@@ -112,31 +132,29 @@ class Player(object):
 
         return self
 
-    @staticmethod
-    def bid(number=0, min_bid=0):
-        """Make a bid on a property."""
-        price = PROPERTY_PRICES[number]
-        price_bid = np.random.normal(price, 0.5 * price)
-        return min(price_bid, min_bid)
+    def buy_property(self, number=None, price=None):
+        """Purchase a property. Pay money to bank and take property from Game list."""
+        number = number if number else self.position
+        prop = self.game.get_property(number)
+        if prop:
+            price = price if price else prop.price
+            self.pay(price, self.game.bank)
+            self.properties.append(prop)
+            logging.debug('Player %s purchases %s for $%s.', self.number, prop.name, price)
+        else:
+            logging.warning('This should not happen, if property is not in Game list, somebody should own it.')
+        return self
 
-    @staticmethod
-    def jail_pay_or_roll():
-        """Pay or roll to get out of jail."""
-        r = np.random.rand()
-        return 0 if r > 0.5 else 1
+    def follow(self, card=None):
+        """Follow the rules of a card."""
+        card.rule(self, self.game, card)
+        return self
 
     @staticmethod
     def liquidate_or_auction():
         """Liquidate money or just put up for auction."""
         r = np.random.rand()
         return 0 if r > 0.5 else 1
-
-    @staticmethod
-    def roll_dice():
-        """Roll two dice with uniform randomness.  Return dice sum and doubles boolean."""
-        dice1 = np.random.randint(1, 6)
-        dice2 = np.random.randint(1, 6)
-        return dice1 + dice2, dice1 == dice2, (dice1, dice2)
 
     def go_to_space(self, number=0, pass_go=True, just_visiting=True):
         """Move player to specific space."""
@@ -174,45 +192,6 @@ class Player(object):
                 self.go_to_space(p)
         if not found:
             self.go_to_space(space_list[0])
-        return self
-
-    def develop(self):
-        """Look for opportunities to develop properties."""
-
-        # Look for ownership of all groups in player's properties
-        monopolies = set()
-        for prop in self.properties:
-            if prop.category == 'property':
-                same_color = sum([prop.color == otherprop.color and not otherprop.mortgaged for otherprop in self.properties])
-                if same_color == COLOR_COUNTS[prop.color]:
-                    monopolies.add(prop.color)
-
-        # If monopoly exists develop
-        for monopoly in monopolies:
-            # Make list of monopoly
-            monopoly_props = [self.get_property(p) for p in COLOR_PROPERTIES[monopoly]]
-            monopoly_levels = [prop.level for prop in monopoly_props]
-            dev_level = min(monopoly_levels)
-            if dev_level < MAX_LEVEL:
-                logging.debug(
-                    'Player %s has a monopoly on %s %s with development at %s.',
-                    self.number,
-                    monopoly,
-                    monopoly_props,
-                    dev_level
-                )
-                # Loop thru properties to develop only the ones at the currect minimum development level
-                # TODO: allow multiple development cycles.
-                for prop in monopoly_props:
-                    if prop.level == dev_level and prop.cost < self.risk_tolerance * self.money:
-                        self.pay(prop.cost, self.game.bank)
-                        if prop.houses < MAX_HOUSE_LEVEL:
-                            prop.houses += 1
-                            logging.debug('Player %s building house on %s.', self.number, prop.name)
-                        elif prop.hotels < 1:
-                            prop.hotels += 1
-                            logging.debug('Player %s building hotel on %s.', self.number, prop.name)
-
         return self
 
     @staticmethod
@@ -429,20 +408,41 @@ class Player(object):
 
         return self
 
-    def buy_property(self, number=None, price=None):
-        """Purchase a property. Pay money to bank and take property from Game list."""
-        number = number if number else self.position
-        prop = self.game.get_property(number)
-        if prop:
-            price = price if price else prop.price
-            self.pay(price, self.game.bank)
-            self.properties.append(prop)
-            logging.debug('Player %s purchases %s for $%s.', self.number, prop.name, price)
-        else:
-            logging.warning('This should not happen, if property is not in Game list, somebody should own it.')
-        return self
+    def develop(self):
+        """Look for opportunities to develop properties."""
 
-    def follow(self, card=None):
-        """Follow the rules of a card."""
-        card.rule(self, self.game, card)
+        # Look for ownership of all groups in player's properties
+        monopolies = set()
+        for prop in self.properties:
+            if prop.category == 'property':
+                same_color = sum([prop.color == otherprop.color and not otherprop.mortgaged for otherprop in self.properties])
+                if same_color == COLOR_COUNTS[prop.color]:
+                    monopolies.add(prop.color)
+
+        # If monopoly exists develop
+        for monopoly in monopolies:
+            # Make list of monopoly
+            monopoly_props = [self.get_property(p) for p in COLOR_PROPERTIES[monopoly]]
+            monopoly_levels = [prop.level for prop in monopoly_props]
+            dev_level = min(monopoly_levels)
+            if dev_level < MAX_LEVEL:
+                logging.debug(
+                    'Player %s has a monopoly on %s %s with development at %s.',
+                    self.number,
+                    monopoly,
+                    monopoly_props,
+                    dev_level
+                )
+                # Loop thru properties to develop only the ones at the currect minimum development level
+                # TODO: allow multiple development cycles.
+                for prop in monopoly_props:
+                    if prop.level == dev_level and prop.cost < self.risk_tolerance * self.money:
+                        self.pay(prop.cost, self.game.bank)
+                        if prop.houses < MAX_HOUSE_LEVEL:
+                            prop.houses += 1
+                            logging.debug('Player %s building house on %s.', self.number, prop.name)
+                        elif prop.hotels < 1:
+                            prop.hotels += 1
+                            logging.debug('Player %s building hotel on %s.', self.number, prop.name)
+
         return self

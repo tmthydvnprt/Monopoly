@@ -83,6 +83,16 @@ class Game(object):
         np.random.shuffle(self.chance)
         np.random.shuffle(self.community_chest)
 
+    @property
+    def ranking(self):
+        """Determine the Game rankings."""
+        return sorted(self.players, key=lambda x: x.networth, reverse=True)
+
+    @property
+    def winner(self):
+        """Determine the Game winner."""
+        return self.ranking[0]
+
     def __str__(self):
         """String print out of Game"""
         card_str = ['-' * CARD_WIDTH]
@@ -112,16 +122,6 @@ class Game(object):
     def __repr__(self):
         return 'Game {}'.format(self.number)
 
-    @property
-    def ranking(self):
-        """Determine the Game rankings."""
-        return sorted(self.players, key=lambda x: x.networth, reverse=True)
-
-    @property
-    def winner(self):
-        """Determine the Game winner."""
-        return self.ranking[0]
-
     def others(self, player=None):
         """Return the other players."""
         return [plyr for plyr in self.players if plyr is not player]
@@ -149,6 +149,22 @@ class Game(object):
         logging.debug('Player %s won the bid at $%s.', bidders[0].number, current_bid)
         bidders[0].buy_property(number, current_bid)
 
+    @staticmethod
+    def draw_card(deck=None):
+        """Draw a card from the top of a deck then replace it on the bottom. Return the card."""
+        card = deck.pop(0)
+        if card.name != 'Get out of Jail Free':
+            deck.append(card)
+        return card
+
+    def draw_chance(self):
+        """Draw a Chance Card."""
+        return self.draw_card(self.chance)
+
+    def draw_community_chest(self):
+        """Draw a Cummunity Chest Card."""
+        return self.draw_card(self.community_chest)
+
     def play_game(self, max_rounds=100):
         """Play the game."""
         self.start_time = datetime.datetime.now()
@@ -174,19 +190,3 @@ class Game(object):
         logging.info('Player %s is the winner of Game %s!', self.winner.number, self.number)
         logging.info('Game %s took %s s', self.number, self.elapsed_time)
         return self.record
-
-    @staticmethod
-    def draw_card(deck=None):
-        """Draw a card from the top of a deck then replace it on the bottom. Return the card."""
-        card = deck.pop(0)
-        if card.name != 'Get out of Jail Free':
-            deck.append(card)
-        return card
-
-    def draw_chance(self):
-        """Draw a Chance Card."""
-        return self.draw_card(self.chance)
-
-    def draw_community_chest(self):
-        """Draw a Cummunity Chest Card."""
-        return self.draw_card(self.community_chest)
