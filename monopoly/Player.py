@@ -82,11 +82,11 @@ class Player(object):
         return dice1 + dice2, dice1 == dice2, (dice1, dice2)
 
     @staticmethod
-    def bid(number=0, min_bid=0):
+    def bid(number=0, min_bid=0, max_bid=1e7):
         """Make a bid on a property."""
         price = PROPERTY_PRICES[number]
         price_bid = np.random.normal(price, 0.5 * price)
-        return min(price_bid, min_bid)
+        return min(max(price_bid, min_bid), max_bid)
 
     @staticmethod
     def jail_pay_or_roll():
@@ -102,6 +102,11 @@ class Player(object):
         """Find the property in the player's deeds. Assumes ownership is already determined."""
         prop = [prop for prop in self.properties if number == prop.loc]
         return prop[0] if prop else None
+
+    def pop_property(self, number=0):
+        """Find a property position in the player's deed list. Removes from list"""
+        indx = [i for i, prop in enumerate(self.properties) if number == prop.loc]
+        return self.properties.pop(indx[0]) if indx else None
 
     def add(self, amount=0.0, addfrom=None):
         """Add an amount of money from someone."""
@@ -150,6 +155,40 @@ class Player(object):
         card.rule(self, self.game, card)
         return self
 
+    def ask_to_buy(self, player=None, number=0, price=0):
+        """Ask to buy something from another player."""
+        answer = player.reply_to_buy(self, number, price)
+        if answer:
+            self.pay(price, player)
+            self.properties.append(player.pop_property(number))
+        return self
+
+    def reply_to_buy(self, player=None, number=0, price=0):
+        """Reply to another player's buy offer."""
+        # If player has little money accept the offer
+        if price > self.money:
+            return True
+        else:
+            r = np.random.rand()
+            return r > 0.5
+
+    def ask_to_sell(self, player=None, number=0, price=0):
+        """Ask to sell something to another player."""
+        answer = player.reply_to_sell(self, number, price)
+        if answer:
+            player.pay(price, self)
+            player.properties.append(self.pop_property(number))
+        return self
+
+    def reply_to_sell(self, player=None, number=0, price=0):
+        """Reply to another player's sell offer."""
+        # If the player does not have enough money replay no
+        if self.money < price:
+            return False
+        else:
+            r = np.random.rand()
+            return r > 0.5
+
     @staticmethod
     def liquidate_or_auction():
         """Liquidate money or just put up for auction."""
@@ -194,12 +233,13 @@ class Player(object):
             self.go_to_space(space_list[0])
         return self
 
-    @staticmethod
-    def liquidate(money=0.0):
+    def liquidate(self, money=0.0):
         """Make decision to liquidate some assets."""
         money = 0.0
         # Sell get out of jail free cards
-        # Sel houses and hotels
+        while len(self.cards) > 0:
+            break
+        # Sell houses and hotels
         # Mortgage lowest valued / non monopolied properties first
 
         return money
@@ -404,7 +444,7 @@ class Player(object):
                     # Auction the property for bid
                     elif find_money_or_auction is 1:
                         logging.debug('Player %s decided to auction off %s.', self.number, PROPERTY_NAMES[self.position])
-                        self.game.auction(self.position)
+                        self.game.new_property_auction(self.position)
 
         return self
 

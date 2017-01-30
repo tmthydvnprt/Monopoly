@@ -8,11 +8,16 @@ I:126, 0: Locally enabling bad-whitespace (C0326) (locally-enabled)
 ************* Module monopoly.Game
 I: 25, 0: Locally disabling bad-whitespace (C0326) (locally-disabled)
 I: 63, 0: Locally enabling bad-whitespace (C0326) (locally-enabled)
+************* Module monopoly.Player
+W:166,27: Unused argument 'player' (unused-argument)
+W:166,40: Unused argument 'number' (unused-argument)
+W:183,28: Unused argument 'player' (unused-argument)
+W:183,41: Unused argument 'number' (unused-argument)
 
 
 Report
 ======
-586 statements analysed.
+616 statements analysed.
 
 Statistics by type
 ------------------
@@ -24,7 +29,7 @@ Statistics by type
 +---------+-------+-----------+-----------+------------+---------+
 |class    |6      |6          |=          |100.00      |0.00     |
 +---------+-------+-----------+-----------+------------+---------+
-|method   |54     |54         |=          |100.00      |0.00     |
+|method   |60     |60         |=          |100.00      |0.00     |
 +---------+-------+-----------+-----------+------------+---------+
 |function |0      |0          |=          |0           |0        |
 +---------+-------+-----------+-----------+------------+---------+
@@ -38,10 +43,9 @@ External dependencies
     monopoly 
       \-Bank (monopoly.Game)
       \-Card (monopoly.Game)
-      \-Constants (monopoly.Game)
-      \-Player (monopoly.Game)
+      \-Constants (monopoly.Player)
       \-Property (monopoly.Game)
-    numpy (monopoly.Game)
+    numpy (monopoly.Player)
 
 
 
@@ -51,13 +55,13 @@ Raw metrics
 +----------+-------+------+---------+-----------+
 |type      |number |%     |previous |difference |
 +==========+=======+======+=========+===========+
-|code      |771    |74.56 |771      |=          |
+|code      |803    |74.28 |801      |+2.00      |
 +----------+-------+------+---------+-----------+
-|docstring |78     |7.54  |78       |=          |
+|docstring |84     |7.77  |84       |=          |
 +----------+-------+------+---------+-----------+
-|comment   |74     |7.16  |74       |=          |
+|comment   |77     |7.12  |77       |=          |
 +----------+-------+------+---------+-----------+
-|empty     |111    |10.74 |111      |=          |
+|empty     |117    |10.82 |117      |=          |
 +----------+-------+------+---------+-----------+
 
 
@@ -83,12 +87,23 @@ Messages by category
 +===========+=======+=========+===========+
 |convention |0      |0        |=          |
 +-----------+-------+---------+-----------+
-|refactor   |0      |0        |=          |
+|refactor   |0      |1        |-1.00      |
 +-----------+-------+---------+-----------+
-|warning    |0      |0        |=          |
+|warning    |4      |4        |=          |
 +-----------+-------+---------+-----------+
 |error      |0      |0        |=          |
 +-----------+-------+---------+-----------+
+
+
+
+% errors / warnings by module
+-----------------------------
+
++----------------+------+--------+---------+-----------+
+|module          |error |warning |refactor |convention |
++================+======+========+=========+===========+
+|monopoly.Player |0.00  |100.00  |0.00     |0.00       |
++----------------+------+--------+---------+-----------+
 
 
 
@@ -98,6 +113,8 @@ Messages
 +-----------------+------------+
 |message id       |occurrences |
 +=================+============+
+|unused-argument  |4           |
++-----------------+------------+
 |locally-disabled |4           |
 +-----------------+------------+
 |locally-enabled  |3           |
@@ -107,5 +124,5 @@ Messages
 
 Global evaluation
 -----------------
-Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+Your code has been rated at 9.94/10 (previous run: 9.92/10, +0.02)
 

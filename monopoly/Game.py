@@ -131,23 +131,30 @@ class Game(object):
         indx = [i for i, prop in enumerate(self.properties) if number == prop.loc]
         return self.properties.pop(indx[0]) if indx else None
 
-    def auction(self, number=0):
-        """Allow players to auction properties."""
+    @staticmethod
+    def auction(bidders=None, number=0, what='new', min_bid=0, max_bid=1e7):
+        """Allow subset of players to have auction and bid things."""
         current_bid = 0
-        bidders = copy.copy(self.players)
+        bidders = copy.copy(bidders)
         # Bid until only one bidder left
         while len(bidders) > 1:
             for i, plyr in enumerate(bidders):
-                bid = plyr.bid(number, 0)
+                bid = plyr.bid(number, what, min_bid, max_bid)
                 if bid > current_bid:
                     current_bid = bid
                     logging.debug('Player %s has the current bid ($%s).', plyr.number, current_bid)
                 if bid < current_bid:
                     bidders.pop(i)
                     logging.debug('Player %s bid too low, done bidding ($%s < $%s).', plyr.number, bid, current_bid)
+        return (bidders[0], current_bid)
+
+    def new_property_auction(self, number=0):
+        """Hold auction for new properties."""
+        # Hold auction
+        highest_bidder, highest_bid = self.auction(self.players, number)
         # Best bidder buys property
-        logging.debug('Player %s won the bid at $%s.', bidders[0].number, current_bid)
-        bidders[0].buy_property(number, current_bid)
+        logging.debug('Player %s won the bid at $%s.', highest_bidder.number, highest_bid)
+        highest_bidder.buy_property(number, highest_bid)
 
     @staticmethod
     def draw_card(deck=None):
