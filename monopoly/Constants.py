@@ -12,6 +12,7 @@ MAX_HOUSE_LEVEL = 4
 MAX_LEVEL = 5
 MAX_HOUSES = 32
 MAX_HOTELS = 12
+INIT_CASH = 1500.0
 
 # Game Space locations
 # pylint:disable=bad-whitespace

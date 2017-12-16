@@ -6,9 +6,10 @@ import copy
 import logging
 import datetime
 import textwrap
+import pandas as pd
 import numpy as np
 
-from monopoly.Constants import TOTAL_MONEY, CARD_WIDTH, PROPERTY_INDX, PROPERTY_DEFS
+from monopoly.Constants import TOTAL_MONEY, CARD_WIDTH, PROPERTY_INDX, PROPERTY_DEFS, INIT_CASH
 from monopoly.Constants import GO, JAIL
 from monopoly.Constants import ILLINOIS, ST_CHARLES, UTILITIES, RAILROADS, READING, BOARDWALK
 
@@ -65,12 +66,14 @@ COMMUNITY_CHEST_CARDS = [
 class Game(object):
     """Define the Game Monopoly."""
 
-    def __init__(self, number, num_players):
+    def __init__(self, number, num_players, recordData=False):
         """Initialize a game."""
         self.number = number
+        self.num_players = num_players
         self.players = [Player(i, self) for i in xrange(num_players)]
         self.bankrupted = []
-        self.bank = Bank(TOTAL_MONEY, self)
+        self.total_money = TOTAL_MONEY
+        self.bank = Bank(TOTAL_MONEY - num_players * INIT_CASH, self)
         self.freeparking = FreeParking(0.0, self, name='FreeParking', clipmoney=True)
         self.chance = copy.deepcopy(CHANCE_CARDS)
         self.community_chest = copy.deepcopy(COMMUNITY_CHEST_CARDS)
@@ -78,15 +81,21 @@ class Game(object):
         self.start_time = 0
         self.end_time = 0
         self.elapsed_time = 0
-        self.record = []
+        self.recordData = recordData
+        self.record = pd.DataFrame(columns=['game', 'round', 'bank', 'freeparking', 'total', 'open_properties', 'player', 'money', 'properties', 'networth', 'num_houses', 'num_hotels', 'cards'])
         # Shuffle the cards
         np.random.shuffle(self.chance)
         np.random.shuffle(self.community_chest)
 
     @property
+    def current_money(self):
+        """Determine the Game winner."""
+        return self.bank.money + self.freeparking.money + sum([plyr.money for plyr in self.players])
+
+    @property
     def ranking(self):
         """Determine the Game rankings."""
-        return sorted(self.players, key=lambda x: x.networth, reverse=True)
+        return sorted(self.players + self.bankrupted, key=lambda x: x.networth, reverse=True)
 
     @property
     def winner(self):
@@ -103,8 +112,15 @@ class Game(object):
         card_str.append(''.center(CARD_WIDTH))
         card_str.append(' Free Parking: ${}'.format(self.freeparking.money).ljust(CARD_WIDTH))
         card_str.append(''.center(CARD_WIDTH))
-        card_str.append(' Players:'.ljust(CARD_WIDTH))
+        card_str.append(' Active Players:'.ljust(CARD_WIDTH))
         for plyr in self.players:
+            card_str.append(' Player {} @ {} (T: {}, R: {})'.format(plyr.number, plyr.position, plyr.turn, plyr.round).ljust(CARD_WIDTH))
+            card_str.append(' M: ${}, P: {}'.format(plyr.money, len(plyr.properties)).ljust(CARD_WIDTH))
+            card_str.append(' NW: ${}'.format(plyr.networth).ljust(CARD_WIDTH))
+            card_str.append(''.center(CARD_WIDTH))
+        card_str.append(''.center(CARD_WIDTH))
+        card_str.append(' Bankrupt Players:'.ljust(CARD_WIDTH))
+        for plyr in self.bankrupted:
             card_str.append(' Player {} @ {} (T: {}, R: {})'.format(plyr.number, plyr.position, plyr.turn, plyr.round).ljust(CARD_WIDTH))
             card_str.append(' M: ${}, P: {}'.format(plyr.money, len(plyr.properties)).ljust(CARD_WIDTH))
             card_str.append(' NW: ${}'.format(plyr.networth).ljust(CARD_WIDTH))
@@ -115,6 +131,9 @@ class Game(object):
         card_str.append(''.center(CARD_WIDTH))
         card_str.append('Community Chest Shuffle Order:'.ljust(CARD_WIDTH))
         card_str.extend([_.ljust(CARD_WIDTH) for _ in textwrap.wrap(str(self.community_chest), CARD_WIDTH)])
+        card_str.append(''.center(CARD_WIDTH))
+        card_str.append('Available Properties:'.ljust(CARD_WIDTH))
+        card_str.extend([_.ljust(CARD_WIDTH) for _ in textwrap.wrap(str(self.properties), CARD_WIDTH)])
         card_str.append(''.center(CARD_WIDTH))
         card_str.append('-' * CARD_WIDTH)
         return '\n'.join('|{}|'.format(l) for l in card_str)
@@ -178,14 +197,37 @@ class Game(object):
         logging.info('Game %s starting at %s', self.number, self.start_time)
         rounds = 1
         while len(self.players) > 1 and rounds < max_rounds:
-            logging.debug('Round %s', rounds)
+            logging.debug('Starting round %s. Bank: $%s, Freeparking: $%s, props: %s, Players: %s, Total Money: $%s', rounds, self.bank.money, self.freeparking.money, len(self.properties), len(self.players), self.current_money)
             # Each round all players take a turn
             for plyr in self.players:
                 plyr.take_turn()
                 # Between each turn, all players have opportunity to develop
-                for plyr in self.players:
-                    plyr.develop()
+                for plyr_dev in self.players:
+                    plyr_dev.develop()
+
+                # Record data if need be
+                if self.recordData:
+                    self.record = self.record.append({
+                        'game' : self.number,
+                        'round' : rounds,
+                        'bank' : self.bank.money,
+                        'freeparking' : self.freeparking.money,
+                        'total' : self.current_money,
+                        'open_properties' : len(self.properties),
+                        'player' : plyr.number,
+                        'money' : plyr.money,
+                        'properties' : len(plyr.properties),
+                        'networth' : plyr.networth,
+                        'num_houses' : plyr.num_houses,
+                        'num_hotels' : plyr.num_hotels,
+                        'cards' : len(plyr.properties)
+                    }, ignore_index=True)
+
+            logging.debug('Ending round %s. Bank: $%s, Freeparking: $%s, props: %s, Players: %s, Total Money: $%s', rounds, self.bank.money, self.freeparking.money, len(self.properties), len(self.players), self.current_money)
+            if int(round(int(round(self.current_money)) % int(round(self.total_money)))) != 0:
+                logging.warning('Current Money ($%s) is not evenly divisible by Total Money ($%s), it is x%s times, this should not happen.', self.current_money, self.total_money, (self.current_money / self.total_money))
             rounds += 1
+        self.record.index.name = 'turn'
         self.end_time = datetime.datetime.now()
         self.elapsed_time = self.end_time - self.start_time
         logging.info('Game %s ended at %s', self.number, self.end_time)
